@@ -23,7 +23,7 @@ struct BaseView: View {
     var body: some View {
         let sideBarWidth = getRect().width - 90
         HStack(spacing: 0) {
-            SideMenuView(rootActive: $rootActive, coreDM: $coreDM ,menuActive: $showMenu, mapData: mapData, uid: uid, name: name, email: email, imageURL: imageURL)
+            SideMenuView(rootActive: $rootActive, coreDM: $coreDM ,menuActive: $showMenu, mapData: mapData, uid: $uid, name: $name, email: $email, imageURL: $imageURL)
             VStack(spacing: 0) {
                 TabView(selection: $current) {
                     VStack {

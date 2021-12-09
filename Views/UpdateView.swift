@@ -1,24 +1,21 @@
 //
-//  SignupView.swift
+//  UpdateView.swift
 //  ridetec
 //
-//  Created by jose juan alcantara rincon on 27/11/21.
+//  Created by jose juan alcantara rincon on 09/12/21.
 //
 
 import SwiftUI
 import Firebase
+import SDWebImageSwiftUI
 
-struct SignupView: View {
+struct UpdateView: View {
     @Binding var rootActive: Bool
-    @State var name: String = ""
-    @State var email: String = ""
-    @State var password: String = ""
-    @State var passwordConfirmation: String = ""
-    @State var passWrong = false
-    @State var messageError = ""
+    @Binding var name: String
+    @Binding var email: String
+    @Binding var imageURL: String
     @State var showImage = false
     @State var image: UIImage?
-    @State var imageURL: String = "https://www.pngall.com/wp-content/uploads/5/Profile-PNG-File.png"
     
     var body: some View {
         NavigationView {
@@ -35,9 +32,9 @@ struct SignupView: View {
                             showImage = true
                         }
                 } else {
-                    Image(systemName: "person.circle.fill")
+                    WebImage(url: URL(string: imageURL ?? ""))
                         .resizable()
-                        .scaledToFit()
+                        .aspectRatio(contentMode: .fill)
                         .frame(width: 200, height: 200)
                         .padding(.top, 20)
                         .padding(.bottom, 20)
@@ -51,22 +48,10 @@ struct SignupView: View {
                         .padding(.horizontal)
                         .padding(.horizontal, 30)
                         .textFieldStyle(RoundedBorderTextFieldStyle())
-                    TextField("Email", text: $email)
-                        .padding(.horizontal)
-                        .padding(.horizontal, 30)
-                        .textFieldStyle(RoundedBorderTextFieldStyle())
-                    SecureField("Password", text: $password)
-                        .padding(.horizontal)
-                        .padding(.horizontal, 30)
-                        .textFieldStyle(RoundedBorderTextFieldStyle())
-                    SecureField("Confirm password", text: $passwordConfirmation)
-                        .padding(.horizontal)
-                        .padding(.horizontal, 30)
-                        .textFieldStyle(RoundedBorderTextFieldStyle())
                     Button(action: {
-                        createNewAccount()
+                        persistImageToStorage()
                     }, label: {
-                        Text("Signup")
+                        Text("Update")
                             .padding()
                             .padding(.horizontal, 10)
                             .foregroundColor(.white)
@@ -74,44 +59,14 @@ struct SignupView: View {
                             .cornerRadius(8)
                             .padding(.top)
                     })
-                        .alert(self.messageError, isPresented: $passWrong) {
-                        Button("Close", role: .cancel) { }
-                    }
                 }
                 Spacer()
             }
-            .navigationTitle("Signup")
+            .navigationTitle("Update")
         }
         .navigationViewStyle(StackNavigationViewStyle())
         .fullScreenCover(isPresented: $showImage, onDismiss: nil) {
             ImagePicker(image: $image)
-        }
-    }
-    
-    private func createNewAccount() {
-        if(password == passwordConfirmation){
-            Auth.auth().createUser(withEmail: self.email, password: self.password) {
-                result, error in
-                if let err = error {
-                    print("Failed to create user:", err.localizedDescription)
-                    messageError = err.localizedDescription
-                    passWrong = true
-                    email = ""
-                    return
-                }
-                
-                print("Successfully created user: \(result?.user.uid ?? "")")
-                rootActive = false
-                
-                self.persistImageToStorage()
-                print(messageError)
-            }
-        }
-        else {
-            messageError = "Passwords does not match"
-            passWrong = true
-            password = ""
-            passwordConfirmation = ""
         }
     }
     
@@ -138,6 +93,7 @@ struct SignupView: View {
                 print("Successfully stored image with url \(url?.absoluteString ?? "")")
                 
                 guard let url = url else { return }
+                imageURL = url.absoluteString
                 self.storeUserInformation(imageProfile: url.absoluteString)
             }
         }
@@ -152,14 +108,14 @@ struct SignupView: View {
                     print(err.localizedDescription)
                     return
                 }
-                
+                rootActive = false
                 print("Suuccess")
             }
     }
 }
 
-struct SignupView_Previews: PreviewProvider {
+struct UpdateView_Previews: PreviewProvider {
     static var previews: some View {
-        SignupView(rootActive: .constant(true))
+        UpdateView(rootActive: .constant(true), name: .constant(""), email: .constant(""), imageURL: .constant(""))
     }
 }

@@ -15,10 +15,10 @@ struct SideMenuView: View {
     @Binding var menuActive: Bool
     @ObservedObject var mapData: MapViewModel
     @State var driverActive: Bool = false
-    var uid: String
-    var name: String
-    var email: String
-    var imageURL: String
+    @Binding var uid: String
+    @Binding var name: String
+    @Binding var email: String
+    @Binding var imageURL: String
     
     var body: some View {
         VStack(alignment: .leading, spacing: 0) {
@@ -37,7 +37,7 @@ struct SideMenuView: View {
             .padding(.leading)
             ScrollView(.vertical, showsIndicators: false) {
                 VStack(alignment: .leading, spacing: 30) {
-                    NavigationLink(destination: ProfileView()){
+                    NavigationLink(destination: ProfileView(uid: $uid, name: $name, email: $email, imageURL: $imageURL)){
                         TabButton(title: "Profile", image: "person.crop.circle")
                     }
                     Divider()
@@ -93,7 +93,7 @@ struct SideMenuView: View {
 
 struct SideMenuView_Previews: PreviewProvider {
     static var previews: some View {
-        SideMenuView(rootActive: .constant(true), coreDM: .constant(CoreDataManager()), menuActive: .constant(true),mapData: MapViewModel(), uid: "", name: "", email: "", imageURL: "")
+        SideMenuView(rootActive: .constant(true), coreDM: .constant(CoreDataManager()), menuActive: .constant(true),mapData: MapViewModel(), uid: .constant(""), name: .constant(""), email: .constant(""), imageURL: .constant(""))
     }
 }
 
