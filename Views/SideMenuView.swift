@@ -19,6 +19,7 @@ struct SideMenuView: View {
     @Binding var name: String
     @Binding var email: String
     @Binding var imageURL: String
+    @State var deleteAccount = false
     
     var body: some View {
         VStack(alignment: .leading, spacing: 0) {
@@ -50,13 +51,34 @@ struct SideMenuView: View {
                     }
                     Spacer()
                     Spacer()
-                    Spacer()
-                    Spacer()
                     TabButton(title: "Logout", image: "arrowshape.turn.up.backward.circle")
                         .onTapGesture {
                             coreDM.deleteAllUsers()
                             try? Auth.auth().signOut()
                             rootActive = false
+                        }
+                    Divider()
+                    TabButton(title: "Delete Account", image: "trash.circle")
+                        .onTapGesture {
+                            deleteAccount = true
+                        }
+                        .alert("Delete your account?", isPresented: $deleteAccount) {
+                           
+                            Button("Delete", role: .destructive) {
+                                coreDM.deleteAllUsers()
+                                mapData.clean()
+                                Auth.auth().currentUser?.delete {err in
+                                    print(err?.localizedDescription)
+                                }
+                                Firestore.firestore().collection("users").document(uid).delete { err in
+                                    print(err?.localizedDescription)
+                                }
+                                Storage.storage().reference(withPath: uid).delete { err in
+                                    print(err?.localizedDescription)
+                                }
+                                rootActive = false
+                            }
+                            Button("Cancel", role: .cancel){}
                         }
                 }
                 .padding()
@@ -83,9 +105,9 @@ struct SideMenuView: View {
                     .renderingMode(.template)
                     .aspectRatio(contentMode: .fill)
                     .frame(width: 30, height: 30)
-                    .foregroundColor(.primary)
+                    .foregroundColor(image == "trash.circle" ? .red : .primary)
                 Text(title)
-                    .foregroundColor(.primary)
+                    .foregroundColor(image == "trash.circle" ? .red : .primary)
                     .frame(maxWidth: .infinity, alignment: .leading)
             }
     }
